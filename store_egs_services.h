@@ -210,6 +210,16 @@ public:
   [[nodiscard]] usize friend_count() const override { return m_friend_ids.size(); }
   [[nodiscard]] nx::vector<nx::string> friend_names() const override;
 
+  /// The raw EOS_EpicAccountId behind friend_names()'s index @p index, or
+  /// nullptr if out of range - store_egs_overlay.h's block/report/
+  /// native-profile calls need this (EOS_UI's TargetUserId), the same
+  /// index-not-raw-handle shape store_steam's own open_to_friend() already
+  /// uses for the same reason (Luau has no safe way to carry an opaque
+  /// account handle).
+  [[nodiscard]] EOS_EpicAccountId friend_id_at(usize index) const noexcept {
+    return index < m_friend_ids.size() ? m_friend_ids[index] : nullptr;
+  }
+
   /// Fires EOS_UserInfo_QueryUserInfo for the local user, refreshing
   /// own_name().
   void refresh_own_name();

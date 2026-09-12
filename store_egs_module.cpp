@@ -1,5 +1,9 @@
 #include "store_egs/store_egs_config.h"
+#include "store_egs/store_egs_leaderboards.h"
+#include "store_egs/store_egs_mods.h"
+#include "store_egs/store_egs_overlay.h"
 #include "store_egs/store_egs_platform.h"
+#include "store_egs/store_egs_scripting.h"
 #include "store_egs/store_egs_services.h"
 
 #include "store/store_service.h"
@@ -28,7 +32,9 @@ class StoreEgsModule final : public nxe::Module {
 public:
   StoreEgsModule()
       : m_core(m_platform), m_iap(m_platform), m_achievements(m_platform),
-        m_cloud_saves(m_platform), m_presence(m_platform) {}
+        m_cloud_saves(m_platform), m_presence(m_platform),
+        m_leaderboards(m_platform), m_overlay(m_platform, m_presence),
+        m_mods(m_platform) {}
 
   [[nodiscard]] nxe::ModuleDescriptor descriptor() const noexcept override {
     nxe::ModuleDescriptor out{};
@@ -89,6 +95,10 @@ public:
     return true;
   }
 
+  void on_expose_scripts(nxe::script::Host &host, nxe::ModuleContext &) override {
+    expose_store_egs_extras(host, m_leaderboards, m_overlay, m_mods);
+  }
+
   void on_detach(nxe::ModuleContext &) override { m_platform.shutdown(); }
 
 private:
@@ -98,6 +108,13 @@ private:
   EgsAchievements m_achievements;
   EgsCloudSaves m_cloud_saves;
   EgsPresence m_presence;
+
+  // EGS-specific extras (leaderboards, social-overlay control, mods) -
+  // never part of store_service.h's neutral interface, never registered
+  // through ServiceRegistry (see store_egs_scripting.h).
+  EgsLeaderboards m_leaderboards;
+  EgsOverlay m_overlay;
+  EgsMods m_mods;
 };
 
 } // namespace

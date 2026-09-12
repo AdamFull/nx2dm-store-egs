@@ -3,10 +3,15 @@ add_executable(nx_store_egs_tests
         test_store_egs_config.cpp
         test_store_egs_module.cpp
         test_store_egs_services.cpp
+        test_store_egs_extras.cpp
         ../store_egs_config.cpp
         ../store_egs_module.cpp
         ../store_egs_platform.cpp
-        ../store_egs_services.cpp)
+        ../store_egs_services.cpp
+        ../store_egs_leaderboards.cpp
+        ../store_egs_overlay.cpp
+        ../store_egs_mods.cpp
+        ../store_egs_scripting.cpp)
 
 nx_module_registry(nx_store_egs_tests)
 

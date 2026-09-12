@@ -27,6 +27,8 @@ nx_module(store_egs
         DISPLAY "Epic Games Store (EOS) storefront backend"
         SOURCES store_egs_module.cpp store_egs_config.cpp store_egs_platform.cpp
                 store_egs_services.cpp
+                store_egs_leaderboards.cpp store_egs_overlay.cpp
+                store_egs_mods.cpp store_egs_scripting.cpp
         DEPENDS nx::eossdk nx_module_store
         PLATFORMS windows linux macos)
 
