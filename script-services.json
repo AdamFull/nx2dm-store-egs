@@ -1,0 +1,128 @@
+{
+  "services": [
+    {
+      "name": "store_egs_leaderboard_download",
+      "signature": "(string)->(boolean)"
+    },
+    {
+      "name": "store_egs_leaderboard_download_pending",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_leaderboard_entry_count",
+      "signature": "()->(number)"
+    },
+    {
+      "name": "store_egs_leaderboard_entry_rank",
+      "signature": "(number)->(number)"
+    },
+    {
+      "name": "store_egs_leaderboard_entry_score",
+      "signature": "(number)->(number)"
+    },
+    {
+      "name": "store_egs_leaderboard_entry_name",
+      "signature": "(number)->(string)"
+    },
+    {
+      "name": "store_egs_overlay_show_friends",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_overlay_hide_friends",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_overlay_friends_visible",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_overlay_show_block_player",
+      "signature": "(number)->(boolean)"
+    },
+    {
+      "name": "store_egs_overlay_show_report_player",
+      "signature": "(number)->(boolean)"
+    },
+    {
+      "name": "store_egs_overlay_show_native_profile",
+      "signature": "(number)->(boolean)"
+    },
+    {
+      "name": "store_egs_overlay_pause_social_overlay",
+      "signature": "(boolean)->(boolean)"
+    },
+    {
+      "name": "store_egs_overlay_social_overlay_paused",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_mods_refresh_installed",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_mods_refresh_available",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_mods_installed_count",
+      "signature": "()->(number)"
+    },
+    {
+      "name": "store_egs_mods_installed_title",
+      "signature": "(number)->(string)"
+    },
+    {
+      "name": "store_egs_mods_installed_version",
+      "signature": "(number)->(string)"
+    },
+    {
+      "name": "store_egs_mods_available_count",
+      "signature": "()->(number)"
+    },
+    {
+      "name": "store_egs_mods_available_title",
+      "signature": "(number)->(string)"
+    },
+    {
+      "name": "store_egs_mods_available_version",
+      "signature": "(number)->(string)"
+    },
+    {
+      "name": "store_egs_mods_install",
+      "signature": "(number)->(boolean)"
+    },
+    {
+      "name": "store_egs_mods_install_pending",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_mods_install_error",
+      "signature": "()->(string)"
+    },
+    {
+      "name": "store_egs_mods_uninstall",
+      "signature": "(number)->(boolean)"
+    },
+    {
+      "name": "store_egs_mods_uninstall_pending",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_mods_uninstall_error",
+      "signature": "()->(string)"
+    },
+    {
+      "name": "store_egs_mods_update",
+      "signature": "(number)->(boolean)"
+    },
+    {
+      "name": "store_egs_mods_update_pending",
+      "signature": "()->(boolean)"
+    },
+    {
+      "name": "store_egs_mods_update_error",
+      "signature": "()->(string)"
+    }
+  ]
+}

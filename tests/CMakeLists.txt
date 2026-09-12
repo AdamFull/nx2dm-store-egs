@@ -4,6 +4,7 @@ add_executable(nx_store_egs_tests
         test_store_egs_module.cpp
         test_store_egs_services.cpp
         test_store_egs_extras.cpp
+        test_store_egs_scripting.cpp
         ../store_egs_config.cpp
         ../store_egs_module.cpp
         ../store_egs_platform.cpp
