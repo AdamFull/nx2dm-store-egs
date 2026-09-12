@@ -31,6 +31,8 @@ TEST_CASE("store_egs services: EgsCore refuses safely with no platform") {
   CHECK(core.store_name() == "egs");
   core.refresh_entitlements();
   CHECK(core.owned_dlc_ids().empty());
+  core.refresh_ownership();
+  CHECK(core.owned_dlc_ids().empty());
 }
 
 TEST_CASE("store_egs services: EgsIap refuses safely with no platform") {
@@ -41,6 +43,8 @@ TEST_CASE("store_egs services: EgsIap refuses safely with no platform") {
   CHECK_FALSE(iap.purchase_pending());
   CHECK(iap.purchase_error().empty());
   iap.refresh_offers();
+  CHECK(iap.products().empty());
+  iap.refresh_products();
   CHECK(iap.products().empty());
 }
 
@@ -56,6 +60,8 @@ TEST_CASE(
   achievements.refresh_definitions();
   achievements.refresh_player_achievements();
   achievements.refresh_stats();
+  CHECK(achievements.achievement_ids().empty());
+  achievements.refresh();
   CHECK(achievements.achievement_ids().empty());
 }
 
@@ -84,5 +90,7 @@ TEST_CASE(
   CHECK(presence.friend_names().empty());
   presence.refresh_own_name();
   presence.refresh_friends();
+  CHECK(presence.friend_names().empty());
+  presence.refresh();
   CHECK(presence.friend_names().empty());
 }

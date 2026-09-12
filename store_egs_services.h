@@ -51,6 +51,13 @@ public:
   /// cache is_owned()/owned_dlc_ids() read from.
   void refresh_entitlements();
 
+  /// EOS always queries every entitlement in one round trip - @p dlc_id is
+  /// ignored, same as store::StoreCore::refresh_ownership() documents for
+  /// any bulk-capable backend.
+  void refresh_ownership(nx::string_view = {}) override {
+    refresh_entitlements();
+  }
+
 private:
   static void EOS_CALL
   query_entitlements_callback(const EOS_Ecom_QueryEntitlementsCallbackInfo *data);
@@ -85,6 +92,13 @@ public:
   /// Fires EOS_Ecom_QueryOffers, refreshing the cache products() reads from.
   void refresh_offers();
 
+  /// EOS always queries every offer in one round trip - @p product_ids is
+  /// ignored, same as store::StoreIap::refresh_products() documents for any
+  /// bulk-capable backend.
+  void refresh_products(const nx::vector<nx::string> & = {}) override {
+    refresh_offers();
+  }
+
 private:
   static void EOS_CALL
   query_offers_callback(const EOS_Ecom_QueryOffersCallbackInfo *data);
@@ -116,6 +130,15 @@ public:
   /// Fires EOS_Stats_QueryStats (all stats, one round trip), refreshing
   /// every cached value stat() reads from.
   void refresh_stats();
+
+  /// EOS already queries every achievement definition/unlock/stat in bulk -
+  /// @p stat_ids is ignored, same as store::StoreAchievements::refresh()
+  /// documents for any bulk-capable backend.
+  void refresh(const nx::vector<nx::string> & = {}) override {
+    refresh_definitions();
+    refresh_player_achievements();
+    refresh_stats();
+  }
 
 private:
   static void EOS_CALL query_definitions_callback(
@@ -150,7 +173,7 @@ public:
   [[nodiscard]] u64 bytes_total() const override { return 0; }
 
   /// Fires EOS_PlayerDataStorage_QueryFileList, refreshing keys().
-  void refresh_keys();
+  void refresh_keys() override;
 
 private:
   static EOS_PlayerDataStorage_EReadResult EOS_CALL
@@ -194,6 +217,11 @@ public:
   /// friend_names() (the latter needs a further per-friend UserInfo query,
   /// done inline as each friend id comes back).
   void refresh_friends();
+
+  void refresh() override {
+    refresh_own_name();
+    refresh_friends();
+  }
 
 private:
   static void EOS_CALL
