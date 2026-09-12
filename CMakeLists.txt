@@ -17,7 +17,7 @@ endif ()
 set(_nx_store_egs_platforms windows linux macos)
 _nx_current_platform(_nx_store_egs_here)
 if (NOT _nx_store_egs_here IN_LIST _nx_store_egs_platforms)
-    message(STATUS "nx2d: module 'store_egs' skipped on ${_nx_store_egs_here}")
+    _nx_module_skip_platform(store_egs "${_nx_store_egs_here}")
     return()
 endif ()
 
