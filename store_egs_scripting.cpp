@@ -4,7 +4,7 @@
 #include "store_egs/store_egs_mods.h"
 #include "store_egs/store_egs_overlay.h"
 
-#include "core/script/script_host.h"
+#include "script/script_host.h"
 
 namespace nxm::store_egs {
 

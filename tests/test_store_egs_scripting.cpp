@@ -1,7 +1,7 @@
 #include "framework/nxtest.h"
 
-#include "core/app/engine.h"
-#include "core/script/script_host.h"
+#include "app/engine.h"
+#include "script/script_host.h"
 #include "store_egs/store_egs_leaderboards.h"
 #include "store_egs/store_egs_mods.h"
 #include "store_egs/store_egs_overlay.h"
