@@ -1,4 +1,9 @@
 {
+  "platforms": [
+    "windows",
+    "linux",
+    "macos"
+  ],
   "services": [
     {
       "name": "store_egs_leaderboard_download",
