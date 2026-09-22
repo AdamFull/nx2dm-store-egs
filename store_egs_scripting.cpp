@@ -7,6 +7,22 @@
 #include "script/script_host.h"
 
 namespace nxm::store_egs {
+namespace {
+
+/// One leaderboard row as a script reads it.
+struct LeaderboardEntry {
+  f64 rank = 0.0;
+  f64 score = 0.0;
+  nx::string_view name;
+};
+
+/// One mod as a script reads it.
+struct ModEntry {
+  nx::string_view title;
+  nx::string_view version;
+};
+
+}
 
 void expose_store_egs_extras(nxe::script::Host &host,
                              EgsLeaderboards &leaderboards, EgsOverlay &overlay,
@@ -19,6 +35,15 @@ void expose_store_egs_extras(nxe::script::Host &host,
                  });
   host.expose_as("store_egs_leaderboard_download_pending", [&leaderboards]() {
     return leaderboards.download_pending();
+  });
+  host.expose_as("store_egs_leaderboard_entries", [&leaderboards] {
+    nx::vector<LeaderboardEntry> out;
+    out.reserve(leaderboards.entry_count());
+    for (usize i = 0; i < leaderboards.entry_count(); ++i)
+      out.push_back({static_cast<f64>(leaderboards.entry_rank(i)),
+                     static_cast<f64>(leaderboards.entry_score(i)),
+                     leaderboards.entry_name(i)});
+    return out;
   });
   host.expose_as("store_egs_leaderboard_entry_count", [&leaderboards]() {
     return static_cast<f64>(leaderboards.entry_count());
@@ -72,6 +97,13 @@ void expose_store_egs_extras(nxe::script::Host &host,
   host.expose_as("store_egs_mods_refresh_available",
                  [&mods]() { mods.refresh_available(); return true; });
 
+  host.expose_as("store_egs_mods_installed", [&mods] {
+    nx::vector<ModEntry> out;
+    out.reserve(mods.installed_count());
+    for (usize i = 0; i < mods.installed_count(); ++i)
+      out.push_back({mods.installed_title(i), mods.installed_version(i)});
+    return out;
+  });
   host.expose_as("store_egs_mods_installed_count", [&mods]() {
     return static_cast<f64>(mods.installed_count());
   });
@@ -84,6 +116,13 @@ void expose_store_egs_extras(nxe::script::Host &host,
                    return mods.installed_version(nx::cast<usize>(index));
                  });
 
+  host.expose_as("store_egs_mods_available", [&mods] {
+    nx::vector<ModEntry> out;
+    out.reserve(mods.available_count());
+    for (usize i = 0; i < mods.available_count(); ++i)
+      out.push_back({mods.available_title(i), mods.available_version(i)});
+    return out;
+  });
   host.expose_as("store_egs_mods_available_count", [&mods]() {
     return static_cast<f64>(mods.available_count());
   });

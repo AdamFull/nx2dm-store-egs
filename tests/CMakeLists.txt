@@ -20,7 +20,8 @@ target_include_directories(nx_store_egs_tests PRIVATE
         "${NX_ENGINE_ROOT}/engine" "${NX_ENGINE_ROOT}/modules")
 
 target_link_libraries(nx_store_egs_tests
-        PRIVATE nx::test nx::foundation nx::engine nx::eossdk nx::compile_options)
+        PRIVATE nx::test nx::foundation nx::engine nx::script_luau
+        nx::eossdk nx::compile_options)
 
 set_target_properties(nx_store_egs_tests PROPERTIES FOLDER "tests")
 nxtest_discover_tests(nx_store_egs_tests LABELS store_egs)

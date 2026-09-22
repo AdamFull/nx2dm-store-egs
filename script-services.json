@@ -14,6 +14,10 @@
       "signature": "()->(boolean)"
     },
     {
+      "name": "store_egs_leaderboard_entries",
+      "signature": "()->({{rank: number, score: number, name: string}})"
+    },
+    {
       "name": "store_egs_leaderboard_entry_count",
       "signature": "()->(number)"
     },
@@ -70,6 +74,10 @@
       "signature": "()->(boolean)"
     },
     {
+      "name": "store_egs_mods_installed",
+      "signature": "()->({{title: string, version: string}})"
+    },
+    {
       "name": "store_egs_mods_installed_count",
       "signature": "()->(number)"
     },
@@ -80,6 +88,10 @@
     {
       "name": "store_egs_mods_installed_version",
       "signature": "(number)->(string)"
+    },
+    {
+      "name": "store_egs_mods_available",
+      "signature": "()->({{title: string, version: string}})"
     },
     {
       "name": "store_egs_mods_available_count",

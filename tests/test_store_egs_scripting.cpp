@@ -1,6 +1,7 @@
 #include "framework/nxtest.h"
 
 #include "app/engine.h"
+#include "script/luau/luau_backend.h"
 #include "script/script_host.h"
 #include "store_egs/store_egs_leaderboards.h"
 #include "store_egs/store_egs_mods.h"
@@ -54,6 +55,7 @@ TEST_CASE("store_egs scripting: every service is exposed with the shape a "
   } WANT[] = {
       {"store_egs_leaderboard_download", "(string)->(boolean)"},
       {"store_egs_leaderboard_download_pending", "()->(boolean)"},
+      {"store_egs_leaderboard_entries", "()->({{rank: number, score: number, name: string}})"},
       {"store_egs_leaderboard_entry_count", "()->(number)"},
       {"store_egs_leaderboard_entry_rank", "(number)->(number)"},
       {"store_egs_leaderboard_entry_score", "(number)->(number)"},
@@ -68,9 +70,11 @@ TEST_CASE("store_egs scripting: every service is exposed with the shape a "
       {"store_egs_overlay_social_overlay_paused", "()->(boolean)"},
       {"store_egs_mods_refresh_installed", "()->(boolean)"},
       {"store_egs_mods_refresh_available", "()->(boolean)"},
+      {"store_egs_mods_installed", "()->({{title: string, version: string}})"},
       {"store_egs_mods_installed_count", "()->(number)"},
       {"store_egs_mods_installed_title", "(number)->(string)"},
       {"store_egs_mods_installed_version", "(number)->(string)"},
+      {"store_egs_mods_available", "()->({{title: string, version: string}})"},
       {"store_egs_mods_available_count", "()->(number)"},
       {"store_egs_mods_available_title", "(number)->(string)"},
       {"store_egs_mods_available_version", "(number)->(string)"},
@@ -116,4 +120,30 @@ TEST_CASE("store_egs scripting: the module hands them over on its own") {
   expose_store_egs_extras(direct, leaderboards, overlay, mods);
   CHECK(host.exposed_count() == direct.exposed_count());
   CHECK(host.exposed_count() > 0u);
+}
+
+// No EOS platform runs here, so every list is empty - but each arrives as a
+// table a script can walk, agreeing with the count beside it.
+TEST_CASE("store_egs scripting: the lists come back as tables") {
+  EgsPlatform platform;
+  EgsPresence presence{platform};
+  EgsLeaderboards leaderboards{platform};
+  EgsOverlay overlay{platform, presence};
+  EgsMods mods{platform};
+  script::Host host;
+  REQUIRE(host.set_backend(script::luau_backend()));
+  expose_store_egs_extras(host, leaderboards, overlay, mods);
+  REQUIRE(host.bind());
+  const nx::string_view source = R"(
+local entries = host.store_egs_leaderboard_entries()
+assert(#entries == host.store_egs_leaderboard_entry_count(), "entries")
+local installed = host.store_egs_mods_installed()
+assert(#installed == host.store_egs_mods_installed_count(), "installed")
+local available = host.store_egs_mods_available()
+assert(#available == host.store_egs_mods_available_count(), "available")
+return {}
+)";
+  CHECK(host.load("egs_lists",
+                  {reinterpret_cast<const std::byte *>(source.data()),
+                   source.size()}));
 }
