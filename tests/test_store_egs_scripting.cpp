@@ -1,7 +1,9 @@
 #include "framework/nxtest.h"
 
 #include "app/engine.h"
+#include "core/foundation/platform/filesystem.h"
 #include "script/luau/luau_backend.h"
+#include "script/luau/luau_bindings.h"
 #include "script/script_host.h"
 #include "store_egs/store_egs_leaderboards.h"
 #include "store_egs/store_egs_mods.h"
@@ -27,74 +29,20 @@ struct Exposed {
     expose_store_egs_extras(host, leaderboards, overlay, mods);
     services = host.services();
   }
-
-  [[nodiscard]] const script::Host::ServiceInfo *
-  find(const nx::string_view name) const {
-    for (const script::Host::ServiceInfo &one : services)
-      if (one.name == name)
-        return &one;
-    return nullptr;
-  }
 };
 
 } // namespace
 
-// This is the one place a mismatch between what store_egs_scripting.cpp
-// actually registers and what modules/store_egs/script-services.json
-// declares to Luau would show up - see test_modio_scripting.cpp's identical
-// role for modio. No backend is registered in this harness (no live EOS
-// session runs), so every callable here just exercises its own "no session"
-// refusal path, not real EOS behavior.
-TEST_CASE("store_egs scripting: every service is exposed with the shape a "
-          "script is told about") {
+TEST_CASE("store_egs scripting: every service is exposed as script-services.json "
+          "declares it") {
   const Exposed exposed;
+  const auto manifest = nx::fs::file_read_text(
+      nx::fs::path_view(NX_MODULE_SERVICES_MANIFEST));
+  REQUIRE(manifest);
 
-  static constexpr struct {
-    nx::string_view name;
-    nx::string_view signature;
-  } WANT[] = {
-      {"store_egs_leaderboard_download", "(string)->(boolean)"},
-      {"store_egs_leaderboard_download_pending", "()->(boolean)"},
-      {"store_egs_leaderboard_entries", "()->({{rank: number, score: number, name: string}})"},
-      {"store_egs_leaderboard_entry_count", "()->(number)"},
-      {"store_egs_leaderboard_entry_rank", "(number)->(number)"},
-      {"store_egs_leaderboard_entry_score", "(number)->(number)"},
-      {"store_egs_leaderboard_entry_name", "(number)->(string)"},
-      {"store_egs_overlay_show_friends", "()->(boolean)"},
-      {"store_egs_overlay_hide_friends", "()->(boolean)"},
-      {"store_egs_overlay_friends_visible", "()->(boolean)"},
-      {"store_egs_overlay_show_block_player", "(number)->(boolean)"},
-      {"store_egs_overlay_show_report_player", "(number)->(boolean)"},
-      {"store_egs_overlay_show_native_profile", "(number)->(boolean)"},
-      {"store_egs_overlay_pause_social_overlay", "(boolean)->(boolean)"},
-      {"store_egs_overlay_social_overlay_paused", "()->(boolean)"},
-      {"store_egs_mods_refresh_installed", "()->(boolean)"},
-      {"store_egs_mods_refresh_available", "()->(boolean)"},
-      {"store_egs_mods_installed", "()->({{title: string, version: string}})"},
-      {"store_egs_mods_installed_count", "()->(number)"},
-      {"store_egs_mods_installed_title", "(number)->(string)"},
-      {"store_egs_mods_installed_version", "(number)->(string)"},
-      {"store_egs_mods_available", "()->({{title: string, version: string}})"},
-      {"store_egs_mods_available_count", "()->(number)"},
-      {"store_egs_mods_available_title", "(number)->(string)"},
-      {"store_egs_mods_available_version", "(number)->(string)"},
-      {"store_egs_mods_install", "(number)->(boolean)"},
-      {"store_egs_mods_install_pending", "()->(boolean)"},
-      {"store_egs_mods_install_error", "()->(string)"},
-      {"store_egs_mods_uninstall", "(number)->(boolean)"},
-      {"store_egs_mods_uninstall_pending", "()->(boolean)"},
-      {"store_egs_mods_uninstall_error", "()->(string)"},
-      {"store_egs_mods_update", "(number)->(boolean)"},
-      {"store_egs_mods_update_pending", "()->(boolean)"},
-      {"store_egs_mods_update_error", "()->(string)"},
-  };
-
-  CHECK(exposed.services.size() == nx::array_size(WANT));
-  for (const auto &want : WANT) {
-    const script::Host::ServiceInfo *const found = exposed.find(want.name);
-    REQUIRE(found != nullptr);
-    CHECK(found->signature == want.signature);
-  }
+  nx::string error;
+  if (!script::luau_manifest_agrees(manifest.value(), exposed.services, error))
+    FAIL(error.c_str());
 }
 
 TEST_CASE("store_egs scripting: the module hands them over on its own") {
