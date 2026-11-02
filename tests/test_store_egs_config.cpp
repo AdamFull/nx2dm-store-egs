@@ -2,9 +2,18 @@
 
 #include "store_egs/store_egs_config.h"
 
+#include "core/foundation/threading/thread_pool.h"
+#include "core/foundation/vfs/async_io.h"
 #include "core/foundation/vfs/vfs.h"
 
 namespace {
+
+nx::vfs::AsyncIoService &test_io() {
+  static nx::thread_pool pool(
+      {.thread_count = 1, .name = "nx-test-io", .blocking_threads = 1});
+  static nx::vfs::AsyncIoService io(pool);
+  return io;
+}
 
 using nxm::store_egs::load_project_config;
 
@@ -37,7 +46,7 @@ TEST_CASE("store_egs config: no file present is not an error") {
   REQUIRE(memory != nullptr);
   const nx::vfs::MountId mount = nx::vfs::mount("/", memory);
 
-  CHECK_FALSE(load_project_config().has_value());
+  CHECK_FALSE(load_project_config(test_io()).has_value());
 
   nx::vfs::unmount(mount);
 }
@@ -51,7 +60,7 @@ TEST_CASE("store_egs config: a valid file is parsed in full") {
   const nx::vfs::MountId mount = nx::vfs::mount("/", memory);
 
   const std::optional<nxm::store_egs::ServiceConfig> config =
-      load_project_config();
+      load_project_config(test_io());
   REQUIRE(config.has_value());
   CHECK(config->product_id.view() == "prod-1");
   CHECK(config->sandbox_id.view() == "sandbox-1");
@@ -79,7 +88,7 @@ TEST_CASE("store_egs config: an explicit encryption_key overrides the "
   const nx::vfs::MountId mount = nx::vfs::mount("/", memory);
 
   const std::optional<nxm::store_egs::ServiceConfig> config =
-      load_project_config();
+      load_project_config(test_io());
   REQUIRE(config.has_value());
   CHECK(config->encryption_key.view() == key64);
 
@@ -95,7 +104,7 @@ TEST_CASE("store_egs config: any missing required field is refused") {
              as_bytes("[store_egs]\nproduct_id = prod-1\n"));
   const nx::vfs::MountId mount = nx::vfs::mount("/", memory);
 
-  CHECK_FALSE(load_project_config().has_value());
+  CHECK_FALSE(load_project_config(test_io()).has_value());
 
   nx::vfs::unmount(mount);
 }
@@ -108,7 +117,7 @@ TEST_CASE("store_egs config: malformed ini does not crash") {
   memory->add("/config/store_egs.ini", as_bytes("this is not [ini at all"));
   const nx::vfs::MountId mount = nx::vfs::mount("/", memory);
 
-  CHECK_FALSE(load_project_config().has_value());
+  CHECK_FALSE(load_project_config(test_io()).has_value());
 
   nx::vfs::unmount(mount);
 }
@@ -121,9 +130,9 @@ TEST_CASE("store_egs config: an explicit path overrides the default") {
   memory->add("/somewhere/else.ini", as_bytes(kValid));
   const nx::vfs::MountId mount = nx::vfs::mount("/", memory);
 
-  CHECK_FALSE(load_project_config().has_value());
+  CHECK_FALSE(load_project_config(test_io()).has_value());
   const std::optional<nxm::store_egs::ServiceConfig> config =
-      load_project_config("/somewhere/else.ini");
+      load_project_config(test_io(), "/somewhere/else.ini");
   REQUIRE(config.has_value());
   CHECK(config->product_id.view() == "prod-1");
 
